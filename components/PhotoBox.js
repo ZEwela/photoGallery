@@ -8,15 +8,18 @@ import { useFavouriteStore } from "../zustand/store";
 export default function PhotoBox({ photo, size, densitySize }) {
   const addFavourite = useFavouriteStore((state) => state.addFavourite);
   const removeFavourite = useFavouriteStore((state) => state.removeFavourite);
-  const [like, setLike] = useState(false);
-  const handleLike = () => {
+  const [like, setLike] = useState(photo.favourited || false);
+
+  const handlePress = () => {
     setLike(!like);
+
     if (!like) {
       addFavourite(photo);
     } else {
       removeFavourite(photo);
     }
   };
+
   const navigation = useNavigation();
   return (
     <TouchableOpacity
@@ -35,7 +38,7 @@ export default function PhotoBox({ photo, size, densitySize }) {
         }}
       />
       <Pressable
-        onPress={handleLike}
+        onPress={handlePress}
         style={{
           position: "absolute",
           bottom: 2,
@@ -45,7 +48,7 @@ export default function PhotoBox({ photo, size, densitySize }) {
         <MaterialIcons
           name="favorite"
           size={20}
-          color={like ? "red" : "white"}
+          color={photo.favourited || like ? "red" : "white"}
         />
       </Pressable>
     </TouchableOpacity>

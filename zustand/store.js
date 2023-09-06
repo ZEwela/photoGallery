@@ -1,31 +1,45 @@
 import { create } from "zustand";
 import { getList } from "../api/picsum";
-import { saveData } from "../utilis/asyncStorage";
+import { loadData, saveData } from "../utilis/asyncStorage";
 
 export const useFavouriteStore = create((set, get) => ({
   photos: [],
   favourites: [],
   nextPage: 1,
-  addFavourite: (photo) => {
-    set((state) => {
-      const isDuplicate = state.favourites.some(
-        (favPhoto) => favPhoto.id === photo.id
-      );
-      if (!isDuplicate) {
-        photo.favourited = true;
-        return { favourites: [...state.favourites, photo] };
-      }
-      return state.favourites;
-    });
+  fetchFavourites: async () => {
+    const asyncStorageFavourites = await loadData("favourites");
+
+    if (asyncStorageFavourites && asyncStorageFavourites.length) {
+      set((state) => ({ ...state, favourites: [...asyncStorageFavourites] }));
+    }
   },
-  removeFavourite: (photo) => {
-    photo.favourited = false;
-    const newFavourites = state.favourites.filter(
+  addFavourite: async (photo) => {
+    photo.favourited = true;
+
+    get().photos.map((p) => {
+      if (p.id === photo.id) {
+        photo.favourited = true;
+      }
+    });
+    // Set data (favourites) to  AsyncStorage and store
+    await saveData("favourites", [...get().favourites, photo]);
+    await saveData("photos", [...get().photos]);
+    set((state) => ({ ...state, favourites: [...state.favourites, photo] }));
+  },
+  removeFavourite: async (photo) => {
+    get().photos.map((p) => {
+      if (p.id === photo.id) {
+        photo.favourited = false;
+      }
+    });
+    const newFavourites = get().favourites.filter(
       (favPhoto) => favPhoto.id !== photo.id
     );
-    set((state) => {
-      return { favourites: [...newFavourites] };
-    });
+
+    // Set data (favourites) to  AsyncStorage and store
+    await saveData("favourites", [...newFavourites]);
+    await saveData("photos", [...get().photos]);
+    set((state) => ({ ...state, favourites: [...newFavourites] }));
   },
   fetchingPhotos: async (data) => {
     if (!data) {
