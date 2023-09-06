@@ -3,6 +3,7 @@ const types = {
   SUCCESS: "SUCCESS",
   FAILURE: "FAILURE",
   UPDATEPAGE: "UPDATEPAGE",
+  FAVOURITED: "FAVOURITED",
 };
 
 export const actionCreators = {
@@ -16,6 +17,10 @@ export const actionCreators = {
     type: types.UPDATEPAGE,
     payload: { page },
   }),
+  favourited: (photo) => ({
+    type: types.FAVOURITED,
+    payload: { photo },
+  }),
 };
 
 export const initialState = {
@@ -23,6 +28,7 @@ export const initialState = {
   error: false,
   photos: [],
   nextPage: 1,
+  favourites: [],
 };
 
 export function reducer(state, action) {
@@ -43,6 +49,11 @@ export function reducer(state, action) {
       return {
         ...state,
         nextPage: action.payload.page,
+      };
+    case types.FAVOURITED:
+      return {
+        ...state,
+        favourites: [...state.favourites, action.payload.photo],
       };
   }
 }

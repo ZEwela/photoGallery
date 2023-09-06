@@ -26,13 +26,12 @@ export async function cleanExpiredData() {
       // For example, remove data that has expired
       await saveData("photos", []);
       await saveData("nextPage", 1);
+
       // Set the current timestamp as the last cleaning timestamp
       await AsyncStorage.setItem(
         LAST_CLEANING_TIMESTAMP_KEY,
         currentTimestamp.toString()
       );
-
-      console.log("Data cleaning completed.");
     }
   } catch (error) {
     console.error("Error cleaning data:", error);

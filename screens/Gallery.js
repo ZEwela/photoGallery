@@ -1,62 +1,59 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { actionCreators, initialState, reducer } from "../reducers/photos";
-import { getList } from "../api/picsum";
-import { loadData, saveData } from "../utilis/asyncStorage";
+import { loadData } from "../utilis/asyncStorage";
 import { cleanExpiredData } from "../utilis/asyncStorageClean";
 import PhotoGrid from "../components/PhotoGrid";
+import { useFavouriteStore } from "../zustand/store";
 
 export default function Gallery() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const { photos, nextPage, loading, error } = state;
+  const updatePage = useFavouriteStore((state) => state.updatePage);
+  const fetchingPhotos = useFavouriteStore((state) => state.fetchingPhotos);
+  const { nextPage, photos } = useFavouriteStore((state) => {
+    return { nextPage: state.nextPage, photos: state.photos };
+  });
 
-  const fetchPhotos = useCallback(async () => {
-    dispatch(actionCreators.loading());
-
-    try {
-      const nextPhotos = await getList(nextPage);
-      dispatch(actionCreators.success(nextPhotos, nextPage));
-      await saveData("photos", [...photos, ...nextPhotos]);
-      await saveData("nextPage", nextPage);
-    } catch (e) {
-      dispatch(actionCreators.failure());
-    }
-  }, [nextPage]);
+  const fetchPhotos = useCallback(
+    async (data) => {
+      if (!data) {
+        fetchingPhotos();
+      } else {
+        fetchingPhotos(data);
+      }
+    },
+    [nextPage]
+  );
 
   useEffect(() => {
-    cleanExpiredData();
-    const loadPersistedPhotos = async () => {
+    const loadPhotos = async () => {
+      await cleanExpiredData();
       const persistedPhotos = await loadData("photos");
       const persistedNextPage = await loadData("nextPage");
 
       if (persistedPhotos && persistedPhotos.length) {
-        dispatch(actionCreators.updatePage(persistedNextPage));
-        dispatch(actionCreators.success(persistedPhotos, nextPage));
+        updatePage(persistedNextPage);
+        fetchPhotos(persistedPhotos);
       } else {
         fetchPhotos();
       }
     };
-    loadPersistedPhotos();
+
+    loadPhotos();
   }, []);
 
   if (photos.length === 0) {
-    if (loading) {
-      return (
-        <View style={styles.container}>
-          <ActivityIndicator animating={true} />
-        </View>
-      );
-    }
-    if (error) {
-      return (
-        <View style={styles.container}>
-          <Text>Failed to load photos!</Text>
-        </View>
-      );
-    }
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator animating={true} />
+      </View>
+    );
   }
+
   return (
-    <PhotoGrid numColumns={3} photos={photos} onEndReached={fetchPhotos} />
+    <PhotoGrid
+      numColumns={3}
+      photos={photos}
+      onEndReached={() => fetchPhotos()}
+    />
   );
 }
 

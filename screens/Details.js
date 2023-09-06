@@ -1,4 +1,5 @@
 import {
+  Button,
   Linking,
   StyleSheet,
   Text,
@@ -6,8 +7,11 @@ import {
   View,
 } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
+import { useFavouriteStore } from "../zustand/store";
 
-export default function Details({ route }) {
+export default function Details({ route, navigation }) {
+  const addFavourite = useFavouriteStore((state) => state.addFavourite);
+
   const onPress = (url) =>
     Linking.canOpenURL(url).then(() => {
       Linking.openURL(url);
@@ -16,16 +20,22 @@ export default function Details({ route }) {
     <View style={styles.container}>
       <View style={styles.box}>
         <Text style={styles.detailsHeader}>Author: </Text>
-        <Text style={styles.detailsBody}> {route.params.author}</Text>
+        <Text style={styles.detailsBody}> {route.params.item.author}</Text>
       </View>
 
       <TouchableOpacity
         style={styles.box}
-        onPress={() => onPress(route.params.url)}
+        onPress={() => onPress(route.params.item.url)}
       >
         <Text style={{ fontSize: 15 }}>See photo on Unsplash</Text>
         <EvilIcons name="external-link" size={24} color="black" />
       </TouchableOpacity>
+      <Button
+        title="Add it to favourites"
+        onPress={() => {
+          addFavourite(route.params.item);
+        }}
+      />
     </View>
   );
 }
