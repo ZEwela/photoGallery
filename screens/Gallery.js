@@ -4,6 +4,7 @@ import { loadData } from "../utilis/asyncStorage";
 import { cleanExpiredData } from "../utilis/asyncStorageClean";
 import PhotoGrid from "../components/PhotoGrid";
 import { useFavouriteStore } from "../zustand/store";
+import Toast from "react-native-root-toast";
 
 export default function Gallery() {
   const updatePage = useFavouriteStore((state) => state.updatePage);
@@ -14,6 +15,14 @@ export default function Gallery() {
 
   const fetchPhotos = useCallback(
     async (data) => {
+      let toast = Toast.show("loading more photos...", {
+        duration: 1000,
+        position: Toast.positions.SHORT,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+      });
       if (!data) {
         fetchingPhotos();
       } else {

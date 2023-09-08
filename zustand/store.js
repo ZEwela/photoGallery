@@ -16,13 +16,6 @@ export const useFavouriteStore = create((set, get) => ({
   },
   addFavourite: async (photo) => {
     photo.favourited = true;
-
-    get().photos.map((p) => {
-      if (p.id === photo.id) {
-        photo.favourited = true;
-      }
-    });
-    // Set data (favourites) to  AsyncStorage and store
     await saveData("favourites", [...get().favourites, photo]);
     await saveData("photos", [...get().photos]);
     set((state) => ({ ...state, favourites: [...state.favourites, photo] }));
@@ -31,22 +24,22 @@ export const useFavouriteStore = create((set, get) => ({
     const newFavourites = get().favourites.filter(
       (favPhoto) => favPhoto.id !== photo.id
     );
-    get().photos.map((p) => {
-      if (p.id === photo.id) {
-        photo.favourited = false;
-      }
-    });
 
-    // Set data (favourites) to  AsyncStorage and store
-    set((state) => ({ ...state, favourites: [...newFavourites] }));
+    const toUp = get().photos.find((p) => p.id === photo.id);
+    toUp.favourited = false;
 
     await saveData("favourites", [...newFavourites]);
     await saveData("photos", [...get().photos]);
+    // Set data (favourites) to  AsyncStorage and store
+    set((state) => ({
+      ...state,
+      favourites: [...newFavourites],
+      photos: [...state.photos],
+    }));
   },
   fetchingPhotos: async (data) => {
     if (!data) {
       const nextPhotos = await getList(get().nextPage);
-
       // Save data (photos, nextPage) to AsyncStorage
       await saveData("photos", [...get().photos]);
       await saveData("nextPage", get().nextPage);
