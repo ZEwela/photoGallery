@@ -26,6 +26,7 @@ export async function cleanExpiredData() {
       // For example, remove data that has expired
       await saveData("photos", []);
       await saveData("nextPage", 1);
+      // await saveData("favourites", []);
 
       // Set the current timestamp as the last cleaning timestamp
       await AsyncStorage.setItem(

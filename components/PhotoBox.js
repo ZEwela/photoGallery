@@ -39,11 +39,13 @@ export default function PhotoBox({ photo, size, densitySize }) {
       />
       <Pressable
         onPress={handlePress}
-        style={{
-          position: "absolute",
-          bottom: 2,
-          right: 2,
-        }}
+        style={({ pressed }) => [
+          {
+            position: "absolute",
+            bottom: pressed ? 3 : 2,
+            right: 2,
+          },
+        ]}
       >
         <MaterialIcons
           name="favorite"

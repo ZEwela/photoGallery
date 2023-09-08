@@ -6,9 +6,10 @@ export const useFavouriteStore = create((set, get) => ({
   photos: [],
   favourites: [],
   nextPage: 1,
+  loadingFavourites: true,
   fetchFavourites: async () => {
     const asyncStorageFavourites = await loadData("favourites");
-
+    set((state) => ({ ...state, loadingFavourites: false }));
     if (asyncStorageFavourites && asyncStorageFavourites.length) {
       set((state) => ({ ...state, favourites: [...asyncStorageFavourites] }));
     }
@@ -27,19 +28,20 @@ export const useFavouriteStore = create((set, get) => ({
     set((state) => ({ ...state, favourites: [...state.favourites, photo] }));
   },
   removeFavourite: async (photo) => {
+    const newFavourites = get().favourites.filter(
+      (favPhoto) => favPhoto.id !== photo.id
+    );
     get().photos.map((p) => {
       if (p.id === photo.id) {
         photo.favourited = false;
       }
     });
-    const newFavourites = get().favourites.filter(
-      (favPhoto) => favPhoto.id !== photo.id
-    );
 
     // Set data (favourites) to  AsyncStorage and store
+    set((state) => ({ ...state, favourites: [...newFavourites] }));
+
     await saveData("favourites", [...newFavourites]);
     await saveData("photos", [...get().photos]);
-    set((state) => ({ ...state, favourites: [...newFavourites] }));
   },
   fetchingPhotos: async (data) => {
     if (!data) {
