@@ -1,8 +1,7 @@
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import PhotoGrid from "../components/PhotoGrid";
 import { useFavouriteStore } from "../zustand/store";
 import { useEffect } from "react";
-import Toast from "react-native-root-toast";
 
 export default function Favourites() {
   const { favourites, loading } = useFavouriteStore((state) => ({
@@ -19,16 +18,13 @@ export default function Favourites() {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator animating={true} />
+        <Text>Loading your favourites photos...</Text>
       </View>
     );
   }
   return (
     <View>
-      <PhotoGrid
-        numColumns={3}
-        photos={favourites}
-        // onEndReached={fetchPhotos}
-      />
+      <PhotoGrid numColumns={3} photos={favourites} />
     </View>
   );
 }

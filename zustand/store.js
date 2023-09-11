@@ -16,9 +16,11 @@ export const useFavouriteStore = create((set, get) => ({
   },
   addFavourite: async (photo) => {
     photo.favourited = true;
-    await saveData("favourites", [...get().favourites, photo]);
-    await saveData("photos", [...get().photos]);
+
     set((state) => ({ ...state, favourites: [...state.favourites, photo] }));
+
+    await saveData("favourites", [...get().favourites]);
+    await saveData("photos", [...get().photos]);
   },
   removeFavourite: async (photo) => {
     const newFavourites = get().favourites.filter(

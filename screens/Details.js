@@ -8,14 +8,26 @@ import {
 } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import { useFavouriteStore } from "../zustand/store";
+import { useState } from "react";
 
 export default function Details({ route, navigation }) {
   const addFavourite = useFavouriteStore((state) => state.addFavourite);
+  const removeFavourite = useFavouriteStore((state) => state.removeFavourite);
+  const [likeStatus, setLikeStatus] = useState(
+    route.params.item.favourited || false
+  );
 
   const onPress = (url) =>
     Linking.canOpenURL(url).then(() => {
       Linking.openURL(url);
     });
+
+  const onButtonPress = () => {
+    likeStatus
+      ? removeFavourite(route.params.item)
+      : addFavourite(route.params.item);
+    navigation.goBack();
+  };
   return (
     <View style={styles.container}>
       <View style={styles.box}>
@@ -31,10 +43,10 @@ export default function Details({ route, navigation }) {
         <EvilIcons name="external-link" size={24} color="black" />
       </TouchableOpacity>
       <Button
-        title="Add it to favourites"
-        onPress={() => {
-          addFavourite(route.params.item);
-        }}
+        title={
+          likeStatus ? "remove it from favourites" : "add it to favourites"
+        }
+        onPress={onButtonPress}
       />
     </View>
   );

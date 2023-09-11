@@ -8,7 +8,9 @@ export default function RootNavigator() {
   const Stack = createNativeStackNavigator();
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{ gestureEnabled: true, gestureDirection: "horizontal" }}
+    >
       <Stack.Group>
         <Stack.Screen
           name="Main"

@@ -15,7 +15,7 @@ export default function Gallery() {
 
   const fetchPhotos = useCallback(
     async (data) => {
-      let toast = Toast.show("loading more photos...", {
+      let toast = Toast.show("loading photos...", {
         duration: 1000,
         position: Toast.positions.SHORT,
         shadow: true,
@@ -62,6 +62,9 @@ export default function Gallery() {
       numColumns={3}
       photos={photos}
       onEndReached={() => fetchPhotos()}
+      listFooter={() => {
+        return <ActivityIndicator animating={true} />;
+      }}
     />
   );
 }
